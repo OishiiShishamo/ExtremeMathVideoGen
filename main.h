@@ -12,12 +12,7 @@
 
 #include "color.h"
 #include "utility.h"
-
-inline constexpr double kPi = 3.1415926535897932384626433832795;
-inline constexpr double kTau = kPi * 2;
-inline constexpr double kOneDeg = (kPi / 180);
-
-inline constexpr double kE = 2.7182818284590452353602874713527;
+#include "global.h"
 
 namespace emvg {
     enum class BlendType {

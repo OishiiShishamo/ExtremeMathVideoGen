@@ -11,6 +11,7 @@
 
 #include "color.h"
 #include "utility.h"
+#include "global.h"
 
 namespace emvg {
     std::array<unsigned char, kWidth * kHeight * 3> canvas; 
@@ -28,14 +29,14 @@ namespace emvg {
             canvas[idx + 2] = c.GetB();
             break;
         case BlendType::kBlendAdd:
-            canvas[idx] = ChMax(canvas[idx] + c.GetR(), 255);
-            canvas[idx + 1] = ChMax(canvas[idx + 1] + c.GetG(), 255);
-            canvas[idx + 2] = ChMax(canvas[idx + 2] + c.GetB(), 255);
+            canvas[idx] = ChMin(canvas[idx] + c.GetR(), 255);
+            canvas[idx + 1] = ChMin(canvas[idx + 1] + c.GetG(), 255);
+            canvas[idx + 2] = ChMin(canvas[idx + 2] + c.GetB(), 255);
             break;
         case BlendType::kBlendSub:
             canvas[idx] = ChMin(canvas[idx] - c.GetR(), 0);
-            canvas[idx + 1] = ChMin(canvas[idx + 1] - c.GetG(), 0);
-            canvas[idx + 2] = ChMin(canvas[idx + 2] - c.GetB(), 0);
+            canvas[idx + 1] = ChMax(canvas[idx + 1] - c.GetG(), 0);
+            canvas[idx + 2] = ChMax(canvas[idx + 2] - c.GetB(), 0);
             break;
         case BlendType::kBlendMul:
             canvas[idx] *= static_cast<double>(c.GetR()) / 255.0f;
@@ -51,8 +52,13 @@ namespace emvg {
             ClearCanvas();
             for (int x = 0; x < kWidth; x++) {
                 for (int y = 0; y < kHeight; y++) {
-                    if (std::abs(std::sin(kOneDeg * x * x) - std::sin(kOneDeg * y * y * time)) < 0.01) {
-                        DrawPixel(x, y, Color(255, 255, 255));
+                    double cx = x - kWidth / 2.0;
+                    double cy = y - kHeight / 2.0;
+                    double r = std::sqrt(cx * cx + cy * cy);
+                    double theta = std::atan2(cy, cx);
+
+                    if (std::abs(std::sin(0.15 * r - 5.0 * theta + time * 0.1)) < 0.1) {
+                        DrawPixel(x, y, Color(0, 255, 0), BlendType::kBlendAdd);
                     }
                 }
             }
@@ -63,6 +69,7 @@ namespace emvg {
 }
 
 int main() {
+    emvg::MathInit();
     int end_time = 0;
     std::cout << "Please End Time." << std::endl << ">";
     std::cin >> end_time;
