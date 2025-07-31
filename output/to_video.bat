@@ -1,0 +1,1 @@
+ffmpeg -y -framerate 60 -i %%d.bmp -c:v libx264 -crf 1 -pix_fmt yuv420p output.mp4
