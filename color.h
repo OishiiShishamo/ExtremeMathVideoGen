@@ -29,6 +29,10 @@
 #define kColorBrown 165, 42, 42
 #define kColorBurlyWood 222, 184, 135
 
+#include <algorithm>
+
+#include "global.h"
+
 namespace emvg {
 	class Color {
 	public:
@@ -59,6 +63,36 @@ namespace emvg {
 		int g_ = 0;
 		int b_ = 0;
 	};
+
+	Color GetColorHsv(double H, double S, double V) {
+		int hi = static_cast<int>(H / 60.0);
+		hi = (hi == 6) ? 5 : hi % 6;
+		double f = (H / 60.0) - hi;
+		double p = V * (1.0 - S);
+		double q = V * (1.0 - f * S);
+		double t = V * (1.0 - (1.0 - f) * S);
+
+		double r = 0, g = 0, b = 0;
+
+		switch (hi) {
+		case 0: r = V; g = t; b = p; break;
+		case 1: r = q; g = V; b = p; break;
+		case 2: r = p; g = V; b = t; break;
+		case 3: r = p; g = q; b = V; break;
+		case 4: r = t; g = p; b = V; break;
+		case 5: r = V; g = p; b = q; break;
+		}
+
+		int ir = static_cast<int>(std::clamp(r * 255.0, 0.0, 255.0));
+		int ig = static_cast<int>(std::clamp(g * 255.0, 0.0, 255.0));
+		int ib = static_cast<int>(std::clamp(b * 255.0, 0.0, 255.0));
+
+		return Color(ir, ig, ib);
+	}
+
+	Color GamingColor(int time, int offset = 0, double mul = 1) {
+		return GetColorHsv(std::fmod((time + offset) * mul, 360), 1, 1);
+	}
 }
 
 #endif

@@ -28,6 +28,7 @@ namespace emvg {
 
     void ClearCanvas();
     void DrawPixel(int x, int y, Color c, BlendType blend = BlendType::kNoBlend);
+    void DrawPixelAA(int x, int y, Color c, double diff, double eps = 0.01, BlendType blend = BlendType::kNoBlend);
     void Run(int end_time);
 }
 

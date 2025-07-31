@@ -46,19 +46,24 @@ namespace emvg {
         }
     }
 
+    void DrawPixelAA(int x, int y, Color c, double diff, double eps, BlendType blend) {
+        DrawPixel(x, y, c * (1.0f - diff / eps), blend);
+    }
+
     void Run(int end_time) {
         int time = 0;
         while (time != end_time) {
             ClearCanvas();
             for (int x = 0; x < kWidth; x++) {
                 for (int y = 0; y < kHeight; y++) {
-                    double cx = x - kWidth / 2.0;
-                    double cy = y - kHeight / 2.0;
-                    double r = std::sqrt(cx * cx + cy * cy);
-                    double theta = std::atan2(cy, cx);
+                    double dx = x - kWidth / 2.0;
+                    double dy = y - kHeight / 2.0;
+                    double angle = std::atan2(dy, dx);
+                    double r = std::sqrt(dx * dx + dy * dy);
 
-                    if (std::abs(std::sin(0.15 * r - 5.0 * theta + time * 0.1)) < 0.1) {
-                        DrawPixel(x, y, Color(0, 255, 0), BlendType::kBlendAdd);
+                    double diff = std::abs(std::sin(angle * 5.0 + time * 0.05) * std::exp(-r * 0.02));
+                    if (diff < 0.5) {
+                        DrawPixelAA(x, y, GamingColor(time), diff, 0.5, BlendType::kBlendAdd);
                     }
                 }
             }
