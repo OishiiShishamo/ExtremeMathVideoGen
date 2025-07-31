@@ -24,9 +24,9 @@ namespace emvg {
         int idx = (y * kWidth + x) * 3;
         switch (blend) {
         case BlendType::kNoBlend:
-            canvas[idx] = c.GetR();
-            canvas[idx + 1] = c.GetG();
-            canvas[idx + 2] = c.GetB();
+            canvas[idx] = c.GetRInt();
+            canvas[idx + 1] = c.GetGInt();
+            canvas[idx + 2] = c.GetBInt();
             break;
         case BlendType::kBlendAdd:
             canvas[idx] = ChMin(canvas[idx] + c.GetR(), 255);
@@ -34,14 +34,14 @@ namespace emvg {
             canvas[idx + 2] = ChMin(canvas[idx + 2] + c.GetB(), 255);
             break;
         case BlendType::kBlendSub:
-            canvas[idx] = ChMin(canvas[idx] - c.GetR(), 0);
-            canvas[idx + 1] = ChMax(canvas[idx + 1] - c.GetG(), 0);
-            canvas[idx + 2] = ChMax(canvas[idx + 2] - c.GetB(), 0);
+            canvas[idx] = ChMin(canvas[idx] - c.GetRInt(), 0);
+            canvas[idx + 1] = ChMax(canvas[idx + 1] - c.GetGInt(), 0);
+            canvas[idx + 2] = ChMax(canvas[idx + 2] - c.GetBInt(), 0);
             break;
         case BlendType::kBlendMul:
-            canvas[idx] *= static_cast<double>(c.GetR()) / 255.0f;
-            canvas[idx + 1] *= static_cast<double>(c.GetG()) / 255.0f;
-            canvas[idx + 2] *= static_cast<double>(c.GetB()) / 255.0f;
+            canvas[idx] *= static_cast<double>(c.GetRInt()) / 255.0f;
+            canvas[idx + 1] *= static_cast<double>(c.GetGInt()) / 255.0f;
+            canvas[idx + 2] *= static_cast<double>(c.GetBInt()) / 255.0f;
             break;
         }
     }
@@ -58,10 +58,10 @@ namespace emvg {
                 for (int y = 0; y < kHeight; y++) {
                     double dx = x - kWidth / 2.0;
                     double dy = y - kHeight / 2.0;
-                    double angle = std::atan2(dy, dx);
                     double r = std::sqrt(dx * dx + dy * dy);
-
-                    double diff = std::abs(std::sin(angle * 5.0 + time * 0.05) * std::exp(-r * 0.02));
+                    double angle = std::atan2(dy, dx);
+                    double phase = angle + r * 0.05 + time * 0.05;
+                    double diff = std::abs(std::sin(phase) * std::exp(-r * 0.02));
                     if (diff < 0.5) {
                         DrawPixelAA(x, y, GamingColor(time), diff, 0.5, BlendType::kBlendAdd);
                     }

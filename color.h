@@ -36,19 +36,31 @@
 namespace emvg {
 	class Color {
 	public:
-		Color() = default;
-		Color(int r, int g, int b) : r_(r), g_(g), b_(b) {
-			if (r_ > 255) r_ = 255;
-			if (g_ > 255) g_ = 255;
-			if (b_ > 255) b_ = 255;
-			if (r_ < 0) r_ = 0;
-			if (g_ < 0) g_ = 0;
-			if (b_ < 0) b_ = 0;
+		double GetR() const { return r_; }
+		double GetG() const { return g_; }
+		double GetB() const { return b_; }
+		int GetRInt() const { return r_; }
+		int GetGInt() const { return g_; }
+		int GetBInt() const { return b_; }
+		void SetR(double r) { r_ = r; }
+		void SetG(double g) { g_ = g; }
+		void SetB(double b) { b_ = b; }
+		void Saturate() {
+			SetR(std::clamp(GetR(), static_cast<double>(0.0f), static_cast<double>(1.0f)));
+			SetG(std::clamp(GetG(), static_cast<double>(0.0f), static_cast<double>(1.0f)));
+			SetB(std::clamp(GetB(), static_cast<double>(0.0f), static_cast<double>(1.0f)));
 		}
-
-		int GetR() const { return r_; }
-		int GetG() const { return g_; }
-		int GetB() const { return b_; }
+		void Saturate255() {
+			SetR(std::clamp(GetR(), static_cast<double>(0.0f), static_cast<double>(255.0f)));
+			SetG(std::clamp(GetG(), static_cast<double>(0.0f), static_cast<double>(255.0f)));
+			SetB(std::clamp(GetB(), static_cast<double>(0.0f), static_cast<double>(255.0f)));
+		}
+		Color() = default;
+		Color(double r, double g, double b) {
+			r_ = r;
+			g_ = g;
+			b_ = b;
+		}
 
 		Color operator+(const Color& rhs) const { return Color(GetR() + rhs.GetR(), GetG() + rhs.GetG(), GetB() + rhs.GetB()); }
 		Color operator+(double scalar) const { return Color(GetR() + scalar, GetG() + scalar, GetB() + scalar); }
@@ -59,39 +71,24 @@ namespace emvg {
 		Color operator/(const Color& rhs) const { return Color(GetR() / rhs.GetR(), GetG() / rhs.GetG(), GetB() / rhs.GetB()); }
 		Color operator/(double scalar) const { return Color(GetR() / scalar, GetG() / scalar, GetB() / scalar); }
 	private:
-		int r_ = 0;
-		int g_ = 0;
-		int b_ = 0;
+		double r_ = 0;
+		double g_ = 0;
+		double b_ = 0;
 	};
 
-	Color GetColorHsv(double H, double S, double V) {
-		int hi = static_cast<int>(H / 60.0);
-		hi = (hi == 6) ? 5 : hi % 6;
-		double f = (H / 60.0) - hi;
-		double p = V * (1.0 - S);
-		double q = V * (1.0 - f * S);
-		double t = V * (1.0 - (1.0 - f) * S);
-
-		double r = 0, g = 0, b = 0;
-
-		switch (hi) {
-		case 0: r = V; g = t; b = p; break;
-		case 1: r = q; g = V; b = p; break;
-		case 2: r = p; g = V; b = t; break;
-		case 3: r = p; g = q; b = V; break;
-		case 4: r = t; g = p; b = V; break;
-		case 5: r = V; g = p; b = q; break;
-		}
-
-		int ir = static_cast<int>(std::clamp(r * 255.0, 0.0, 255.0));
-		int ig = static_cast<int>(std::clamp(g * 255.0, 0.0, 255.0));
-		int ib = static_cast<int>(std::clamp(b * 255.0, 0.0, 255.0));
-
-		return Color(ir, ig, ib);
+	Color HsvToRgb(double h, double s = 1.0f, double v = 1.0f) {
+		Color result;
+		h = std::fmod(h, 360.0f);
+		h /= 360.0f;
+		result.SetR(std::abs(h * 6 - 3) - 1);
+		result.SetG(2 - std::abs(h * 6 - 2));
+		result.SetB(2 - std::abs(h * 6 - 4));
+		result.Saturate();
+		return (((result - 1) * s + 1) * v) * 255.0f;
 	}
 
 	Color GamingColor(int time, int offset = 0, double mul = 1) {
-		return GetColorHsv(std::fmod((time + offset) * mul, 360), 1, 1);
+		return HsvToRgb(std::fmod((time + offset) * mul, 360.0f), 1, 1);
 	}
 }
 
