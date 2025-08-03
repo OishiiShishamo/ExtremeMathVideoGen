@@ -23,28 +23,31 @@ namespace emvg {
         canvas.fill(0);
     }
 
-    void DrawPixel(int x, int y, Color c, BlendType blend) {
-        int idx = (y * kWidth + x) * 3;
+    inline void DrawPixel(int x, int y, Color c, BlendType blend) {
+        const int idx = (y * kWidth + x) * 3;
+		const int ri = c.GetRInt();
+		const int gi = c.GetGInt();
+		const int bi = c.GetBInt();
         switch (blend) {
         case BlendType::kNoBlend:
-            canvas[idx] = c.GetRInt();
-            canvas[idx + 1] = c.GetGInt();
-            canvas[idx + 2] = c.GetBInt();
+            canvas[idx] = ri;
+            canvas[idx + 1] = gi;
+            canvas[idx + 2] = bi;
             break;
         case BlendType::kBlendAdd:
-            canvas[idx] = ChMin(canvas[idx] + c.GetR(), 255);
-            canvas[idx + 1] = ChMin(canvas[idx + 1] + c.GetG(), 255);
-            canvas[idx + 2] = ChMin(canvas[idx + 2] + c.GetB(), 255);
+            canvas[idx] = std::min(canvas[idx] + ri, 255);
+            canvas[idx + 1] = std::min(canvas[idx + 1] + gi, 255);
+            canvas[idx + 2] = std::min(canvas[idx + 2] + bi, 255);
             break;
         case BlendType::kBlendSub:
-            canvas[idx] = ChMin(canvas[idx] - c.GetRInt(), 0);
-            canvas[idx + 1] = ChMax(canvas[idx + 1] - c.GetGInt(), 0);
-            canvas[idx + 2] = ChMax(canvas[idx + 2] - c.GetBInt(), 0);
+            canvas[idx] = std::max(canvas[idx] - ri, 0);
+            canvas[idx + 1] = std::max(canvas[idx + 1] - gi, 0);
+            canvas[idx + 2] = std::max(canvas[idx + 2] - bi, 0);
             break;
         case BlendType::kBlendMul:
-            canvas[idx] *= static_cast<double>(c.GetRInt()) / 255.0f;
-            canvas[idx + 1] *= static_cast<double>(c.GetGInt()) / 255.0f;
-            canvas[idx + 2] *= static_cast<double>(c.GetBInt()) / 255.0f;
+            canvas[idx] *= static_cast<double>(ri) / 255.0f;
+            canvas[idx + 1] *= static_cast<double>(gi) / 255.0f;
+            canvas[idx + 2] *= static_cast<double>(bi) / 255.0f;
             break;
         }
     }
