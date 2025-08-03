@@ -65,14 +65,9 @@ namespace emvg {
             std::for_each(std::execution::par, indices.begin(), indices.end(), [&](int i) {
                 int x = i % kWidth;
                 int y = i / kWidth;
-                double dx = x - kWidth / 2.0;
-                double dy = y - kHeight / 2.0;
-                double r = std::sqrt(dx * dx + dy * dy);
-                double angle = std::atan2(dy, dx);
-                double phase = angle + r * 0.05 + time * 0.05;
-                double diff = std::abs(std::sin(phase) * std::exp(-r * 0.02));
-                if (diff < 0.5) {
-                    DrawPixelAA(x, y, GamingColor(time), diff, 0.5, BlendType::kBlendAdd);
+                double diff = sin(kE) - FastSin(x * y);
+                if (diff < 0.01) {
+                    DrawPixelAA(x, y, GamingColor(time, x * y), diff, 0.01, BlendType::kBlendAdd);
                 }
             });
             stbi_write_bmp(("./output/" + std::to_string(time) + ".bmp").c_str(), kWidth, kHeight, 3, canvas.data());
