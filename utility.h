@@ -7,12 +7,12 @@
 #include "global.h"
 
 namespace emvg {
-    int ChMax(const int& a, const int& b) {
-        return std::max(a, b);
+    int ChMax(int& a, const int& b) {
+        a = std::max(a, b);
     }
 
-    int ChMin(const int& a, const int& b) {
-        return std::min(a, b);
+    int ChMin(int& a, const int& b) {
+        a = std::min(a, b);
     }
 
     double Rad(double angle) {
