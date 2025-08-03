@@ -7,11 +7,11 @@
 #include "global.h"
 
 namespace emvg {
-    int ChMax(int& a, const int& b) {
+    void ChMax(int& a, const int& b) {
         a = std::max(a, b);
     }
 
-    int ChMin(int& a, const int& b) {
+    void ChMin(int& a, const int& b) {
         a = std::min(a, b);
     }
 
